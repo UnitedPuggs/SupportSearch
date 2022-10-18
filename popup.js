@@ -31,7 +31,7 @@ function findLicenseName(licenseName) {
             }
         }
     });
-    req.open('GET', 'http://35.236.73.129/receive_license.php?licenseName=' + licenseName, true);
+    req.open('GET', 'http://35.215.125.37/receive_license.php?licenseName=' + licenseName, true);
     req.send();
 }
 
@@ -45,7 +45,7 @@ function insertLicenseName(licenseName, versionNumber, lastUpdated) {
             }
         }
     });
-    req.open('POST', 'http://35.236.73.129/insert_license.php', true);
+    req.open('POST', 'http://35.215.125.37/insert_license.php', true);
     req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     req.send('licenseName=' + encodeURIComponent(licenseName) + "&versionNumber=" + versionNumber + "&lastUpdated=" + lastUpdated);
 }
