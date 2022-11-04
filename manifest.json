@@ -1,6 +1,6 @@
 {
     "name" : "SupportSearch",
-    "description" : "A Clubspeed support assisting tool!",
+    "description" : "A Clubpeed support assisting tool!",
     "version" : "1.2",
     "manifest_version" : 3,
     "permissions" : ["storage", "activeTab", "scripting"],

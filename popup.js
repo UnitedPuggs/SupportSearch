@@ -9,7 +9,7 @@ async function licenseLookup(e) {
         chrome.scripting.executeScript({
             target: {tabId: tab.id}, 
             files: ['popup.js'],
-            func: findLicenseName(document.getElementById("license").value),
+            func: findLicenseName((document.getElementById("license").value).trim()),
         });
     }
 }
