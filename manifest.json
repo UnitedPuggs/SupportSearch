@@ -1,9 +1,9 @@
 {
     "name" : "SupportSearch",
     "description" : "A Clubpeed support assisting tool!",
-    "version" : "1.2",
+    "version" : "1.4",
     "manifest_version" : 3,
-    "permissions" : ["storage", "activeTab", "scripting"],
+    "permissions" : ["storage", "activeTab", "scripting", "tabs"],
     "host_permissions" : [
         "https://*.clubspeedtiming.com/*",
         "<all_urls>"
