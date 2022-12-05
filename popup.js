@@ -3,15 +3,31 @@ let searchButton = document.getElementById("searchButton");
 
 let mostRecentSearches = []
 
+function arrange_order(searches) {
+    for(var i = searches.length - 1; i >= 0; --i) {
+        searches[i] = {"search": searches[i]["search"] - 1, "license": searches[i]["license"]}
+    }
+}
+
 async function licenseLookup(e) {
     if(e.key === 'Enter' || e.type == "click") {
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+        if(mostRecentSearches.length < 3) {
+            searchStr = mostRecentSearches.unshift({ "search": mostRecentSearches.length + 1, "license": search.value.trim()})
+            mostRecentSearches.unshift({"search": search.value.trim()})
+        } else { 
+            mostRecentSearches.pop()
+            //arrange_order(mostRecentSearches)
+            mostRecentSearches.unshift({"search": mostRecentSearches.length + 1, "license": search.value.trim()})
+            console.log(mostRecentSearches)
+        }
 
         console.log("License is " + document.getElementById("license").value);
         chrome.scripting.executeScript({
             target: {tabId: tab.id}, 
             files: ['popup.js'],
-            func: findLicenseName((document.getElementById("license").value).trim()),
+            func: findLicenseName(search.value.trim()),
         });
     }
 }
@@ -73,11 +89,6 @@ function getCSTimingVers(licenseName) {
             document.getElementById("versioninfo").innerHTML = "<div>Version: " + data.CurrentVersion + "<br>Last Updated: " + data.LastUpdated.substring(0, 10) + "<br>Links:"; 
             addLinks((licenseName + ".clubspeedtiming.com"));
             insertLicenseName((licenseName + ".clubspeedtiming.com"), data.CurrentVersion, data.LastUpdated);
-            if(Object.keys(mostRecentSearches).length == 3) {
-
-            } else {
-
-            }
         })
         .catch(err => { 
             if(err.message.includes("Failed to fetch")) { 
