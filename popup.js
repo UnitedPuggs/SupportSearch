@@ -5,8 +5,18 @@ let mostRecentSearches = []
 
 function arrange_order(searches) {
     for(var i = searches.length - 1; i >= 0; --i) {
-        searches[i] = {"search": searches[i]["search"] - 1, "license": searches[i]["license"]}
+        searches[i] = {"search": searches[i]["search"] - 1, "license": searches[i]["license"]};
     }
+}
+
+function clear_storage() {
+    chrome.storage.sync.clear()
+}
+
+function print_storage() {
+        chrome.storage.sync.get({recent: []}, function(result) {
+            console.log(result.recent)
+        });
 }
 
 async function licenseLookup(e) {
@@ -14,16 +24,17 @@ async function licenseLookup(e) {
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
         if(mostRecentSearches.length < 3) {
-            searchStr = mostRecentSearches.unshift({ "search": mostRecentSearches.length + 1, "license": search.value.trim()})
-            mostRecentSearches.unshift({"search": search.value.trim()})
+            mostRecentSearches.unshift({ "search": mostRecentSearches.length + 1, "license": search.value.trim()});
+            chrome.storage.sync.set({recent: mostRecentSearches});
         } else { 
-            mostRecentSearches.pop()
-            //arrange_order(mostRecentSearches)
-            mostRecentSearches.unshift({"search": mostRecentSearches.length + 1, "license": search.value.trim()})
-            console.log(mostRecentSearches)
+            var popped = mostRecentSearches.pop()
+            //console.log("popped" + popped["search"])
+            arrange_order(mostRecentSearches)
+            mostRecentSearches.unshift({"search": mostRecentSearches.length + 1, "license": search.value.trim()});
+            chrome.storage.sync.set({recent: mostRecentSearches});
         }
 
-        console.log("License is " + document.getElementById("license").value);
+        //console.log("License is " + document.getElementById("license").value);
         chrome.scripting.executeScript({
             target: {tabId: tab.id}, 
             files: ['popup.js'],
@@ -31,6 +42,11 @@ async function licenseLookup(e) {
         });
     }
 }
+
+// Testing for chrome storagearea
+document.getElementById("test").addEventListener('click', print_storage)
+document.getElementById("clear").addEventListener('click', clear_storage)
+//
 
 //Just adds event listeners for either pressing enter or clicking on button
 if(search) {
