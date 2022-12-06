@@ -9,15 +9,25 @@ chrome.storage.sync.get({recent: []}, function(result) {
 
     vinfo = document.getElementById("versioninfo");
     vinfo.innerHTML = "Recent Searches:<br>"
-    var a = document.createElement('a');
-    a.id = 'test';
-    a.href = "";
-    a.addEventListener('click', () => {alert("hi")})
+    //https://stackoverflow.com/questions/35537917/javascript-addeventlistener-in-loop for below
+    /**
+     * innerHTML breaks DOM which breaks addEventListener
+     * 
+     */
     for(var i = 0; i < result.recent.length; ++i) {
-        //console.log(result.recent.length)
-        a.innerHTML += result.recent[i]["license"] + "<br>";
+        (function (i) {
+        var license = result.recent[i];
+        var a = document.createElement('a');
+        a.setAttribute("id", license["license"]);
+        a.style.color = "blue";
+        a.style.cursor = "pointer";
+        //console.log(a.id)
+        a.appendChild(document.createTextNode(license["license"]));
+        a.appendChild(document.createElement("br"));
+        vinfo.appendChild(a);
+        a.addEventListener("click", function() { findLicenseName(license["license"]) }, false)
+        }(i));
     }
-    vinfo.appendChild(a);
 });
 
 
@@ -26,7 +36,7 @@ async function licenseLookup(e) {
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
         if(mostRecentSearches.length < 3) {
-            mostRecentSearches.unshift({ "search": mostRecentSearches.length + 1, "license": search.value.trim()});
+            mostRecentSearches.unshift({"search": mostRecentSearches.length + 1, "license": search.value.trim()});
             chrome.storage.sync.set({recent: mostRecentSearches});
         } else { 
             mostRecentSearches.pop()
@@ -53,7 +63,7 @@ function arrange_order(searches) {
 
 
 // Testing for chrome storagearea
-//document.getElementById("test").addEventListener('click', print_storage)
+document.getElementById("backButton").addEventListener('click', () => { window.location="" })
 //document.getElementById("clear").addEventListener('click', clear_storage)
 function clear_storage() {
     chrome.storage.sync.clear()
