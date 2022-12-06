@@ -3,21 +3,23 @@ let searchButton = document.getElementById("searchButton");
 
 let mostRecentSearches = []
 
-function arrange_order(searches) {
-    for(var i = searches.length - 1; i >= 0; --i) {
-        searches[i] = {"search": searches[i]["search"] - 1, "license": searches[i]["license"]};
+
+chrome.storage.sync.get({recent: []}, function(result) {
+    mostRecentSearches = result.recent;
+
+    vinfo = document.getElementById("versioninfo");
+    vinfo.innerHTML = "Recent Searches:<br>"
+    var a = document.createElement('a');
+    a.id = 'test';
+    a.href = "";
+    a.addEventListener('click', () => {alert("hi")})
+    for(var i = 0; i < result.recent.length; ++i) {
+        //console.log(result.recent.length)
+        a.innerHTML += result.recent[i]["license"] + "<br>";
     }
-}
+    vinfo.appendChild(a);
+});
 
-function clear_storage() {
-    chrome.storage.sync.clear()
-}
-
-function print_storage() {
-        chrome.storage.sync.get({recent: []}, function(result) {
-            console.log(result.recent)
-        });
-}
 
 async function licenseLookup(e) {
     if(e.key === 'Enter' || e.type == "click") {
@@ -27,7 +29,7 @@ async function licenseLookup(e) {
             mostRecentSearches.unshift({ "search": mostRecentSearches.length + 1, "license": search.value.trim()});
             chrome.storage.sync.set({recent: mostRecentSearches});
         } else { 
-            var popped = mostRecentSearches.pop()
+            mostRecentSearches.pop()
             //console.log("popped" + popped["search"])
             arrange_order(mostRecentSearches)
             mostRecentSearches.unshift({"search": mostRecentSearches.length + 1, "license": search.value.trim()});
@@ -43,9 +45,25 @@ async function licenseLookup(e) {
     }
 }
 
+function arrange_order(searches) {
+    for(var i = searches.length - 1; i >= 0; --i) {
+        searches[i] = {"search": searches[i]["search"] - 1, "license": searches[i]["license"]};
+    }
+}
+
+
 // Testing for chrome storagearea
-document.getElementById("test").addEventListener('click', print_storage)
-document.getElementById("clear").addEventListener('click', clear_storage)
+//document.getElementById("test").addEventListener('click', print_storage)
+//document.getElementById("clear").addEventListener('click', clear_storage)
+function clear_storage() {
+    chrome.storage.sync.clear()
+}
+
+function print_storage() {
+        chrome.storage.sync.get({recent: []}, function(result) {
+            console.log(result.recent)
+        });
+}
 //
 
 //Just adds event listeners for either pressing enter or clicking on button
