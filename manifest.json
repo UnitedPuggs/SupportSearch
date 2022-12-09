@@ -1,7 +1,7 @@
 {
     "name" : "SupportSearch",
     "description" : "A Clubpeed support assisting tool!",
-    "version" : "1.4",
+    "version" : "1.4.5",
     "manifest_version" : 3,
     "permissions" : ["storage", "activeTab", "scripting", "tabs"],
     "host_permissions" : [

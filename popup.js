@@ -3,27 +3,50 @@ let searchButton = document.getElementById("searchButton");
 
 let mostRecentSearches = []
 
-function arrange_order(searches) {
-    for(var i = searches.length - 1; i >= 0; --i) {
-        searches[i] = {"search": searches[i]["search"] - 1, "license": searches[i]["license"]}
+
+chrome.storage.sync.get({recent: []}, function(result) {
+    mostRecentSearches = result.recent;
+
+    vinfo = document.getElementById("versioninfo");
+    vinfo.innerHTML = "Recent Searches:<br>"
+    //https://stackoverflow.com/questions/35537917/javascript-addeventlistener-in-loop for below
+    /**
+     * innerHTML breaks DOM which breaks addEventListener
+     * 
+     */
+    for(var i = 0; i < result.recent.length; ++i) {
+        (function (i) {
+        var license = result.recent[i];
+        var a = document.createElement('a');
+        a.setAttribute("id", license["license"]);
+        a.style.color = "blue";
+        a.style.cursor = "pointer";
+        //console.log(a.id)
+        a.appendChild(document.createTextNode(license["license"]));
+        a.appendChild(document.createElement("br"));
+        vinfo.appendChild(a);
+        a.addEventListener("click", function() { findLicenseName(license["license"]) }, false)
+        }(i));
     }
-}
+});
+
 
 async function licenseLookup(e) {
     if(e.key === 'Enter' || e.type == "click") {
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
         if(mostRecentSearches.length < 3) {
-            searchStr = mostRecentSearches.unshift({ "search": mostRecentSearches.length + 1, "license": search.value.trim()})
-            mostRecentSearches.unshift({"search": search.value.trim()})
+            mostRecentSearches.unshift({"search": mostRecentSearches.length + 1, "license": search.value.trim()});
+            chrome.storage.sync.set({recent: mostRecentSearches});
         } else { 
             mostRecentSearches.pop()
-            //arrange_order(mostRecentSearches)
-            mostRecentSearches.unshift({"search": mostRecentSearches.length + 1, "license": search.value.trim()})
-            console.log(mostRecentSearches)
+            //console.log("popped" + popped["search"])
+            arrange_order(mostRecentSearches)
+            mostRecentSearches.unshift({"search": mostRecentSearches.length + 1, "license": search.value.trim()});
+            chrome.storage.sync.set({recent: mostRecentSearches});
         }
 
-        console.log("License is " + document.getElementById("license").value);
+        //console.log("License is " + document.getElementById("license").value);
         chrome.scripting.executeScript({
             target: {tabId: tab.id}, 
             files: ['popup.js'],
@@ -31,6 +54,27 @@ async function licenseLookup(e) {
         });
     }
 }
+
+function arrange_order(searches) {
+    for(var i = searches.length - 1; i >= 0; --i) {
+        searches[i] = {"search": searches[i]["search"] - 1, "license": searches[i]["license"]};
+    }
+}
+
+
+// Testing for chrome storagearea
+document.getElementById("backButton").addEventListener('click', () => { window.location="" })
+//document.getElementById("clear").addEventListener('click', clear_storage)
+function clear_storage() {
+    chrome.storage.sync.clear()
+}
+
+function print_storage() {
+        chrome.storage.sync.get({recent: []}, function(result) {
+            console.log(result.recent)
+        });
+}
+//
 
 //Just adds event listeners for either pressing enter or clicking on button
 if(search) {
